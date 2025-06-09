@@ -37,6 +37,7 @@ def lambda_handler(event, context):
                        session.region_name, 'es',
                        session_token=credentials.token)
 
+<<<<<<< Updated upstream
     # Connect to ES
     es = Elasticsearch(
         [env.ES_ENDPOINT],
@@ -48,17 +49,46 @@ def lambda_handler(event, context):
 
     print("Cluster info:")
     print(es.info())
+=======
+    os_client = None
+    if env.OS_ENDPOINT is not None:
+        os_client = OpenSearch(
+            [env.OS_ENDPOINT],
+            http_auth=awsauth,
+            use_ssl=True,
+            verify_certs=True,
+            connection_class=RequestsHttpConnection,
+            timeout=TIMEOUT_VALUE,
+        )
+
+
+    if os_client:
+        print("Cluster Opensearch info:")
+        print(os_client.info())
+>>>>>>> Stashed changes
 
     # Loop over the DynamoDB Stream records
     for record in event['Records']:
 
         try:
+<<<<<<< Updated upstream
             if record['eventName'] == "INSERT":
                 insert_document(es, record)
             elif record['eventName'] == "REMOVE":
                 remove_document(es, record)
             elif record['eventName'] == "MODIFY":
                 modify_document(es, record)
+=======
+            if record["eventName"] == "INSERT":
+                if os_client:
+                    insert_document(os_client, record)
+            elif record["eventName"] == "REMOVE":
+                if os_client:
+                    remove_document(os_client, record)
+            elif record["eventName"] == "MODIFY":
+                if os_client:
+                    modify_document(os_client, record)
+>>>>>>> Stashed changes
 
         except Exception as e:
             print("Failed to process:")
